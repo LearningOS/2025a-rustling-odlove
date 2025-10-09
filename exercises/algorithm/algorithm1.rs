@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +68,35 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self where T: Ord + Clone, {
+        let mut curr_a = list_a.start;
+        let mut curr_b = list_b.start;
+        let mut result = LinkedList::new();
+
+        while let (Some(a_ptr), Some(b_ptr)) = (curr_a, curr_b) {
+            let a_val = unsafe { &(*a_ptr.as_ptr()).val };
+            let b_val = unsafe { &(*b_ptr.as_ptr()).val };
+
+            if a_val < b_val {
+                result.add(a_val.clone());
+                curr_a = unsafe { (*a_ptr.as_ptr()).next };
+            } else {
+                result.add(b_val.clone());
+                curr_b = unsafe { (*b_ptr.as_ptr()).next };
+            }
         }
+
+        while let Some(a_ptr) = curr_a {
+            result.add(unsafe { &(*a_ptr.as_ptr()).val }.clone());
+            curr_a = unsafe { (*a_ptr.as_ptr()).next };
+        }
+
+        while let Some(b_ptr) = curr_b {
+            result.add(unsafe { &(*b_ptr.as_ptr()).val }.clone());
+            curr_b = unsafe { (*b_ptr.as_ptr()).next };
+        }
+
+        result
 	}
 }
 
@@ -135,7 +155,7 @@ mod tests {
 		let vec_a = vec![1,3,5,7];
 		let vec_b = vec![2,4,6,8];
 		let target_vec = vec![1,2,3,4,5,6,7,8];
-		
+
 		for i in 0..vec_a.len(){
 			list_a.add(vec_a[i]);
 		}
